@@ -82,10 +82,11 @@ class HogerLager(Deck):
         self.index = 0
         self.score = 0
         self.finished = False
+        self.update_score()
 
     def update_score(self):
         self.score_label.text = f'{self.score}'
-        self.finished_label.text = f'Gedaan! Je hebt {self.score} punten. Click to restart.'
+        self.finished_label.text = f'Je hebt {self.score} punten. Klik om te herstarten.'
 
     def draw(self):
         if not self.finished:
