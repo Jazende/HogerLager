@@ -13,14 +13,10 @@ def get_scaling(image_width, image_height, width, height):
     return scale_x, scale_y
 
 def higher(x, y):
-    if not (isinstance(x, Card) and isinstance(y, Card)):
-        raise TypeError
-    return x.number > y.number
+    return x > y
 
 def lower(x, y):
-    if not (isinstance(x, Card) and isinstance(y, Card)):
-        raise TypeError
-    return x.number < y.number
+    return x < y
 
 def relative_path(*args):
     return os.path.join(os.getcwd(), *args)
@@ -68,6 +64,26 @@ class Card:
         self.suit = suit
         self.number = number
         self.image = sprite_from_path(get_card_image_path(suit_nr, number))
+
+    def __lt__(self, other):
+        if self.number < other.number:
+            return True
+        return False
+    
+    def __lte__(self, other):
+        if self.number <= other.number:
+            return True
+        return False
+    
+    def __gt__(self, other):
+        if self.number > other.number:
+            return True
+        return False
+    
+    def __gte__(self, other):
+        if self.number > other.number:
+            return True
+        return False
 
 class Deck:
     def __init__(self):
