@@ -3,6 +3,8 @@ import pyglet
 import random
 from pyglet.gl import *
 
+font_data = {'font_name': 'Times New Roman', 'font_size': 32, 'color': (0, 0, 0, 255), 'anchor_x': 'center', 'anchor_y': 'center'}
+
 def get_scaling(image_width, image_height, width, height):
     if width is None:
         scale_y = height / image_height
@@ -54,7 +56,7 @@ class HogerLager(Deck):
         self.finished = False
         self.x = x
         self.y = y
-        
+
         base_image_width = self._cards[0].image.width
         base_image_height = self._cards[0].image.height
         scale_x, scale_y = get_scaling(base_image_width, base_image_height, width, height)
@@ -69,10 +71,8 @@ class HogerLager(Deck):
         for card in self._cards:
             card.image.update(x=x, y=y, scale_x=scale_x, scale_y=scale_y)
 
-        self.score_label = pyglet.text.Label('0', font_name='Times New Roman', font_size=32, color=(0, 0, 0, 255), 
-            x=self.x+scaled_image_width//2, y=self.y-self.up.height//2, anchor_x='center', anchor_y='center')
-        self.finished_label = pyglet.text.Label(' ', font_name='Times New Roman', font_size=32, color=(0, 0, 0, 255), 
-            x=self.x+scaled_image_width//2, y=self.y-3*self.up.height//2, anchor_x='center', anchor_y='center')
+        self.score_label = pyglet.text.Label('0', x=self.x+scaled_image_width//2, y=self.y-self.up.height//2, **font_data)
+        self.finished_label = pyglet.text.Label(' ', x=self.x+scaled_image_width//2, y=self.y-3*self.up.height//2, **font_data)
 
         self.start()
 
@@ -115,13 +115,12 @@ class HogerLager(Deck):
     
     def next_card(self, comparison):
         cur_value = self._cards[self.index]
-        next_value = self._cards[self.index+1]
-        
+        self.index += 1
+        next_value = self._cards[self.index]
+
         if comparison(cur_value, next_value):
             self.score += 1
             self.update_score()
-        
-        self.index += 1
 
         if self.index == len(self._cards)-1:
             self.finished = True
@@ -137,7 +136,7 @@ class Screen(pyglet.window.Window):
     def on_draw(self):
         self.clear()
         self.deck.draw()
-    
+
     def set_2d(self):
         width, height = self.get_size()
         glDisable(GL_DEPTH_TEST)
