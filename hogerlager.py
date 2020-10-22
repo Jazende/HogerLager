@@ -3,6 +3,18 @@ import pyglet
 import random
 from pyglet.gl import *
 
+def get_scaling(image_width, image_height, width, height):
+    if width is None:
+        scale_y = height / image_height
+        scale_x = scale_y
+    elif height is None:
+        scale_x = width / image_width
+        scale_y = scale_x
+    else:
+        scale_y = height / image_height
+        scale_x = width / image_width
+    return scale_x, scale_y
+
 def higher(x, y):
     if not isinstance(x, Card):
         raise TypeError
@@ -17,23 +29,21 @@ def lower(x, y):
         raise TypeError
     return x.number < y.number
 
+def get_card_image_path(suit_nr, card_nr):
+    return os.path.join(os.getcwd(), 'resources', f'cards_{suit_nr+1}x{card_nr+1}.png')
+
+def sprite_from_path(path):
+    return pyglet.sprite.Sprite(pyglet.image.load(path))
+
 class Card:
-    def __init__(self, suit, number, image):
+    def __init__(self, suit, suit_nr, number):
         self.suit = suit
         self.number = number
-        self.image = image
+        self.image = sprite_from_path(get_card_image_path(suit_nr, number))
 
 class Deck:
     def __init__(self):
-        self._cards = []
-
-        for card in range(13):
-            for suit_nr, suit in enumerate(["Clubs", "Diamonds", "Hearths", "Spades"]):
-                file_name = f'cards_{suit_nr+1}x{card+1}.png'
-                file_path = os.path.join(os.getcwd(), 'resources', file_name)
-                img = pyglet.image.load(file_path)
-                sprite = pyglet.sprite.Sprite(img)
-                self._cards.append(Card(suit, card, sprite))
+        self._cards = [Card(suit, suit_nr, card_nr) for card_nr in range(13) for suit_nr, suit in enumerate(["Clubs", "Diamonds", "Hearths", "Spades"])]
 
     def shuffle(self):
         random.shuffle(self._cards)
@@ -47,33 +57,22 @@ class HogerLager(Deck):
         
         base_image_width = self._cards[0].image.width
         base_image_height = self._cards[0].image.height
-        if width is None:
-            scale_y = height / base_image_height
-            scale_x = scale_y
-        elif height is None:
-            scale_x = width / base_image_width
-            scale_y = scale_x
-        else:
-            scale_y = height / base_image_height
-            scale_x = width / base_image_width
+        scale_x, scale_y = get_scaling(base_image_width, base_image_height, width, height)
         scaled_image_width = base_image_width*scale_x
         scaled_image_height = base_image_height*scale_y
-        
-        self.width = base_image_width * scale_x
-        self.height = base_image_height * scale_y
 
-        self.up = pyglet.sprite.Sprite(pyglet.image.load(os.path.join(os.getcwd(), 'resources', 'up.png')))
+        self.up = sprite_from_path(os.path.join(os.getcwd(), 'resources', 'up.png'))
+        self.down = sprite_from_path(os.path.join(os.getcwd(), 'resources', 'down.png'))
         self.up.update(x=x, y=y-self.up.image.height*2-10, scale_x=scale_x*2, scale_y=scale_y*2)
-        self.down = pyglet.sprite.Sprite(pyglet.image.load(os.path.join(os.getcwd(), 'resources', 'down.png')))
         self.down.update(x=x+scaled_image_width-self.down.image.width*2-10, y=y-self.down.image.height*2-10, scale_x=scale_x*2, scale_y=scale_y*2)
 
         for card in self._cards:
             card.image.update(x=x, y=y, scale_x=scale_x, scale_y=scale_y)
 
         self.score_label = pyglet.text.Label('0', font_name='Times New Roman', font_size=32, color=(0, 0, 0, 255), 
-            x=self.x+self.width//2, y=self.y-self.up.height//2, anchor_x='center', anchor_y='center')
+            x=self.x+scaled_image_width//2, y=self.y-self.up.height//2, anchor_x='center', anchor_y='center')
         self.finished_label = pyglet.text.Label(' ', font_name='Times New Roman', font_size=32, color=(0, 0, 0, 255), 
-            x=self.x+self.width//2, y=self.y-3*self.up.height//2, anchor_x='center', anchor_y='center')
+            x=self.x+scaled_image_width//2, y=self.y-3*self.up.height//2, anchor_x='center', anchor_y='center')
 
         self.start()
 
