@@ -65,25 +65,11 @@ class Card:
         self.number = number
         self.image = sprite_from_path(get_card_image_path(suit_nr, number))
 
-    def __lt__(self, other):
-        if self.number < other.number:
-            return True
-        return False
-    
-    def __lte__(self, other):
-        if self.number <= other.number:
-            return True
-        return False
-    
-    def __gt__(self, other):
-        if self.number > other.number:
-            return True
-        return False
-    
-    def __gte__(self, other):
-        if self.number > other.number:
-            return True
-        return False
+    def __lt__(self, other): return True if self.number < other.number else False
+    def __lte__(self, other): return True if self.number <= other.number else False
+    def __eq__(self, other): return True if self.number == other.number else False
+    def __gte__(self, other): return True if self.number >= other.number else False
+    def __gt__(self, other): return True if self.number > other.number else False
 
 class Deck:
     def __init__(self):
